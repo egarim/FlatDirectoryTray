@@ -190,7 +190,7 @@
             this.dataGridViewFilters.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dataGridViewFilters.Location = new System.Drawing.Point(12, 12);
             this.dataGridViewFilters.Name = "dataGridViewFilters";
-            this.dataGridViewFilters.Size = new System.Drawing.Size(406, 200);
+            this.dataGridViewFilters.Size = new System.Drawing.Size(768, 400);
             this.dataGridViewFilters.TabIndex = 0;
             this.dataGridViewFilters.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
             this.dataGridViewFilters.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
@@ -200,7 +200,7 @@
             // 
             // buttonAddFilter
             // 
-            this.buttonAddFilter.Location = new System.Drawing.Point(12, 218);
+            this.buttonAddFilter.Location = new System.Drawing.Point(12, 418);
             this.buttonAddFilter.Name = "buttonAddFilter";
             this.buttonAddFilter.Size = new System.Drawing.Size(100, 23);
             this.buttonAddFilter.TabIndex = 1;
@@ -212,7 +212,7 @@
             // 
             // buttonRemoveFilter
             // 
-            this.buttonRemoveFilter.Location = new System.Drawing.Point(118, 218);
+            this.buttonRemoveFilter.Location = new System.Drawing.Point(118, 418);
             this.buttonRemoveFilter.Name = "buttonRemoveFilter";
             this.buttonRemoveFilter.Size = new System.Drawing.Size(100, 23);
             this.buttonRemoveFilter.TabIndex = 2;
@@ -237,9 +237,6 @@
             this.ResumeLayout(false);
         }
 
-
         #endregion
-
-
     }
 }
