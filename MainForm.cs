@@ -6,7 +6,10 @@ namespace FlatDirectoryTray
     {
         private List<string> flattenedDirectories;
         private List<string> folderFilters;
-
+        // Add these fields to your MainForm class
+        private NotifyIcon trayIcon;
+        private ContextMenuStrip trayIconContextMenu;
+        private bool minimizeToTray = true;
         public MainForm()
         {
             InitializeComponent();
@@ -15,10 +18,122 @@ namespace FlatDirectoryTray
 
             SetupFilterGrid();
             SetupDirectoryListContextMenu(); // Set up the context menu
+            SetupDirectoryListKeyboardShortcuts(); // Set up keyboard shortcuts
+            SetupTrayIcon(); // Set up the system tray icon
             LoadDirectories(); // Load saved directories
+            ShowStartupNotification(); // Show startup notification
 
             // Add form closing event to save directories when the application closes
             this.FormClosing += MainForm_FormClosing;
+        }
+        // Add this method and call it from the constructor
+        private void ShowStartupNotification()
+        {
+            // Show a balloon notification when the app starts
+            trayIcon.BalloonTipTitle = "Flat Directory Tray";
+            trayIcon.BalloonTipText = "Application is running in the system tray. Click the icon to open or close the window.";
+            trayIcon.BalloonTipIcon = ToolTipIcon.Info;
+            trayIcon.ShowBalloonTip(3000); // Show for 3 seconds
+        }
+
+        // Add this method to initialize the tray icon
+        private void SetupTrayIcon()
+        {
+            // Create the NotifyIcon
+            trayIcon = new NotifyIcon();
+
+            // Set the icon - use your application icon or another icon
+            trayIcon.Icon = this.Icon;
+            trayIcon.Text = "Flat Directory Tray";
+            trayIcon.Visible = true;
+
+            // Create context menu for the tray icon
+            trayIconContextMenu = new ContextMenuStrip();
+
+            // Add menu items
+            ToolStripMenuItem openMenuItem = new ToolStripMenuItem("Open");
+            openMenuItem.Click += (sender, e) => {
+                this.Show();
+                this.WindowState = FormWindowState.Normal;
+                this.Activate();
+            };
+
+            ToolStripMenuItem exitMenuItem = new ToolStripMenuItem("Exit");
+            exitMenuItem.Click += (sender, e) => {
+                // Set to false so the form actually closes instead of minimizing to tray
+                minimizeToTray = false;
+                Application.Exit();
+            };
+
+            // Add menu items to context menu
+            trayIconContextMenu.Items.Add(openMenuItem);
+            trayIconContextMenu.Items.Add(new ToolStripSeparator());
+            trayIconContextMenu.Items.Add(exitMenuItem);
+
+            // Assign context menu to NotifyIcon
+            trayIcon.ContextMenuStrip = trayIconContextMenu;
+
+            // Handle the mouse click event to toggle form visibility
+            trayIcon.MouseClick += (sender, e) => {
+                if (e.Button == MouseButtons.Left)
+                {
+                    if (this.Visible)
+                    {
+                        this.Hide();
+                    }
+                    else
+                    {
+                        this.Show();
+                        this.WindowState = FormWindowState.Normal;
+                        this.Activate();
+                    }
+                }
+            };
+        }
+        // Override the form's behavior when closing or minimizing
+        protected override void OnFormClosing(FormClosingEventArgs e)
+        {
+            // If minimizeToTray is true and the form is not being closed by the application
+            if (minimizeToTray && e.CloseReason == CloseReason.UserClosing)
+            {
+                e.Cancel = true; // Cancel the close
+                this.Hide();     // Hide the form
+                return;
+            }
+
+            // Clean up the tray icon before closing
+            if (trayIcon != null)
+            {
+                trayIcon.Visible = false;
+                trayIcon.Dispose();
+            }
+
+            base.OnFormClosing(e);
+        }
+
+        // Handle the Resize event to detect when the form is minimized
+        protected override void OnResize(EventArgs e)
+        {
+            base.OnResize(e);
+
+            // If the form is minimized, hide it and show the tray icon
+            if (this.WindowState == FormWindowState.Minimized)
+            {
+                this.Hide();
+                // The tray icon is already visible, no need to make it visible again
+            }
+        }
+
+        private void SetupDirectoryListKeyboardShortcuts()
+        {
+            listBoxDirectories.KeyDown += (sender, e) =>
+            {
+                if (e.KeyCode == Keys.Delete)
+                {
+                    RemoveSelectedDirectory();
+                    e.Handled = true;
+                }
+            };
         }
 
 
@@ -383,16 +498,7 @@ namespace FlatDirectoryTray
 
             // Add "Remove" menu item
             ToolStripMenuItem removeMenuItem = new ToolStripMenuItem("Remove");
-            removeMenuItem.Click += (sender, e) =>
-            {
-                if (listBoxDirectories.SelectedItem != null)
-                {
-                    string selectedPath = listBoxDirectories.SelectedItem.ToString();
-                    flattenedDirectories.Remove(selectedPath);
-                    listBoxDirectories.Items.Remove(selectedPath);
-                    SaveDirectories(); // Save after removing an item
-                }
-            };
+            removeMenuItem.Click += (sender, e) => RemoveSelectedDirectory();
 
             // Add menu items to context menu
             directoryContextMenu.Items.Add(openMenuItem);
@@ -401,6 +507,54 @@ namespace FlatDirectoryTray
             // Assign context menu to listBoxDirectories
             listBoxDirectories.ContextMenuStrip = directoryContextMenu;
         }
+
+        private void RemoveSelectedDirectory()
+        {
+            if (listBoxDirectories.SelectedItem != null)
+            {
+                string selectedPath = listBoxDirectories.SelectedItem.ToString();
+
+                // Confirm deletion with the user
+                DialogResult result = MessageBox.Show(
+                    $"Are you sure you want to delete the directory '{selectedPath}' from your filesystem?\n\n" +
+                    "This action cannot be undone.",
+                    "Confirm Directory Deletion",
+                    MessageBoxButtons.YesNo,
+                    MessageBoxIcon.Warning);
+
+                if (result == DialogResult.Yes)
+                {
+                    try
+                    {
+                        // Try to delete the directory and all its contents
+                        if (Directory.Exists(selectedPath))
+                        {
+                            Directory.Delete(selectedPath, true);
+                        }
+
+                        // Remove from our lists and UI
+                        flattenedDirectories.Remove(selectedPath);
+                        listBoxDirectories.Items.Remove(selectedPath);
+                        SaveDirectories(); // Save after removing an item
+
+                        MessageBox.Show(
+                            $"Directory '{selectedPath}' has been deleted.",
+                            "Directory Deleted",
+                            MessageBoxButtons.OK,
+                            MessageBoxIcon.Information);
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show(
+                            $"Error deleting directory: {ex.Message}",
+                            "Delete Error",
+                            MessageBoxButtons.OK,
+                            MessageBoxIcon.Error);
+                    }
+                }
+            }
+        }
+
 
 
     }
