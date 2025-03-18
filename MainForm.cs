@@ -15,6 +15,56 @@ namespace FlatDirectoryTray
 
             SetupFilterGrid();
         }
+        private readonly string filtersFileName = "filters.txt";
+
+        private void SaveFilters()
+        {
+            try
+            {
+                // Get the application's current directory
+                string filePath = Path.Combine(Application.StartupPath, filtersFileName);
+
+                // Write all filters to the file
+                File.WriteAllLines(filePath, folderFilters);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error saving filters: {ex.Message}", "Save Error",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void LoadFilters()
+        {
+            try
+            {
+                string filePath = Path.Combine(Application.StartupPath, filtersFileName);
+
+                // If file exists, load it
+                if (File.Exists(filePath))
+                {
+                    // Clear existing filters
+                    folderFilters.Clear();
+                    dataGridViewFilters.Rows.Clear();
+
+                    // Read all filters from the file and add them
+                    string[] savedFilters = File.ReadAllLines(filePath);
+                    foreach (string filter in savedFilters)
+                    {
+                        if (!string.IsNullOrWhiteSpace(filter))
+                        {
+                            folderFilters.Add(filter);
+                            dataGridViewFilters.Rows.Add(filter);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error loading filters: {ex.Message}", "Load Error",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
 
         private void SetupFilterGrid()
         {
@@ -23,59 +73,44 @@ namespace FlatDirectoryTray
             dataGridViewFilters.Columns[0].Name = "Folder Name to Skip";
             dataGridViewFilters.Columns[0].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
 
-            // Add common folders to skip in a C# solution
-            string[] commonFolders = new string[]
-            {
-        ".git",
-        ".vs",
-        "bin",
-        "obj",
-        "node_modules",
-        "packages",
-        ".github",
-        "TestResults",
-        ".nuget",
-        ".svn",
-        "Debug",
-        "Release",
-        "x64",
-        "x86",
-        "AnyCPU"
-            };
+            // Load filters from file if it exists
+            LoadFilters();
 
-            // Add file extensions to skip as folders with extension names
-            string[] binaryExtensions = new string[]
+            // If no filters were loaded, add default ones
+            if (folderFilters.Count == 0)
             {
-        "dll",
-        "exe",
-        "pdb",
-        "bin",
-        "obj",
-        "cache",
-        "suo",
-        "bak",
-        "vspscc",
-        "vsp",
-        "vspx",
-        "vssscc",
-        "log",
-        "user",
-        "userprefs",
-        "ncb",
-        "nupkg"
-            };
+                // Add common folders to skip in a C# solution
+                string[] commonFolders = new string[]
+                {
+            ".git",
+            ".vs",
+            "bin",
+            "obj",
+            "node_modules",
+            "packages",
+            ".github",
+            "TestResults",
+            ".nuget",
+            ".svn",
+            "Debug",
+            "Release",
+            "x64",
+            "x86",
+            "AnyCPU"
+                };
 
-            // Add all folder filters
-            foreach (var folder in commonFolders)
-            {
-                dataGridViewFilters.Rows.Add(folder);
-                folderFilters.Add(folder);
+                // Add all folder filters
+                foreach (var folder in commonFolders)
+                {
+                    dataGridViewFilters.Rows.Add(folder);
+                    folderFilters.Add(folder);
+                }
+
+                // Save the default filters
+                SaveFilters();
             }
-
-            // Note: Since your current implementation only filters by folder names, 
-            // we're focusing on folders. If you need file extension filtering,
-            // that would require additional code changes.
         }
+
 
 
         private void buttonAddFilter_Click(object sender, EventArgs e)
@@ -86,6 +121,7 @@ namespace FlatDirectoryTray
             {
                 dataGridViewFilters.Rows.Add(filter);
                 folderFilters.Add(filter);
+                SaveFilters(); // Save after adding a filter
             }
         }
 
@@ -101,6 +137,8 @@ namespace FlatDirectoryTray
 
                 // Remove the selected row
                 dataGridViewFilters.Rows.RemoveAt(dataGridViewFilters.SelectedRows[0].Index);
+
+                SaveFilters(); // Save after removing a filter
             }
             else
             {
@@ -108,6 +146,7 @@ namespace FlatDirectoryTray
                     MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
         }
+
 
         private void panelFlatDirectory_DragEnter(object sender, DragEventArgs e)
         {
