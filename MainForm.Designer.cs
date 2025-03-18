@@ -15,6 +15,9 @@
         private System.Windows.Forms.DataGridView dataGridViewFilters;
         private System.Windows.Forms.Button buttonAddFilter;
         private System.Windows.Forms.Button buttonRemoveFilter;
+        private System.Windows.Forms.Label labelDropIndicator;
+        private System.Windows.Forms.ProgressBar progressBarCopy;
+        private System.Windows.Forms.Label labelCopyStatus;
 
 
         /// <summary>
@@ -52,6 +55,9 @@
             this.dataGridViewFilters = new System.Windows.Forms.DataGridView();
             this.buttonAddFilter = new System.Windows.Forms.Button();
             this.buttonRemoveFilter = new System.Windows.Forms.Button();
+            this.labelDropIndicator = new System.Windows.Forms.Label();
+            this.progressBarCopy = new System.Windows.Forms.ProgressBar();
+            this.labelCopyStatus = new System.Windows.Forms.Label();
 
             this.SuspendLayout();
 
@@ -66,6 +72,11 @@
             this.tabControl.TabIndex = 0;
             this.tabControl.Controls.Add(this.tabPageMain);
             this.tabControl.Controls.Add(this.tabPageFilters);
+            this.tabControl.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+                                    | System.Windows.Forms.AnchorStyles.Left)
+                                    | System.Windows.Forms.AnchorStyles.Right)));
+            this.tabControl.SizeMode = System.Windows.Forms.TabSizeMode.FillToRight;
+            this.tabControl.Resize += new System.EventHandler(this.tabControl_Resize);
 
             // 
             // tabPageMain
@@ -77,8 +88,14 @@
             this.tabPageMain.TabIndex = 0;
             this.tabPageMain.Text = "Directories";
             this.tabPageMain.UseVisualStyleBackColor = true;
+            this.tabPageMain.Controls.Add(this.labelDropIndicator);
+            this.tabPageMain.Controls.Add(this.progressBarCopy);
+            this.tabPageMain.Controls.Add(this.labelCopyStatus);
             this.tabPageMain.Controls.Add(this.panelDirectoryList);
             this.tabPageMain.Controls.Add(this.panelFlatDirectory);
+            this.tabPageMain.AllowDrop = true;
+            this.tabPageMain.DragEnter += new System.Windows.Forms.DragEventHandler(this.tabPageMain_DragEnter);
+            this.tabPageMain.DragLeave += new System.EventHandler(this.tabPageMain_DragLeave);
 
             // 
             // tabPageFilters
@@ -93,6 +110,43 @@
             this.tabPageFilters.Controls.Add(this.dataGridViewFilters);
             this.tabPageFilters.Controls.Add(this.buttonAddFilter);
             this.tabPageFilters.Controls.Add(this.buttonRemoveFilter);
+
+            // 
+            // labelDropIndicator
+            // 
+            this.labelDropIndicator.AutoSize = true;
+            this.labelDropIndicator.BackColor = System.Drawing.Color.LightBlue;
+            this.labelDropIndicator.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.labelDropIndicator.Font = new System.Drawing.Font("Segoe UI", 14F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
+            this.labelDropIndicator.Location = new System.Drawing.Point(12, 230);
+            this.labelDropIndicator.Name = "labelDropIndicator";
+            this.labelDropIndicator.Padding = new System.Windows.Forms.Padding(10);
+            this.labelDropIndicator.Size = new System.Drawing.Size(250, 47);
+            this.labelDropIndicator.TabIndex = 2;
+            this.labelDropIndicator.Text = "Drop Files Here";
+            this.labelDropIndicator.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            this.labelDropIndicator.Visible = false;
+
+            // 
+            // progressBarCopy
+            // 
+            this.progressBarCopy.Location = new System.Drawing.Point(12, 285);
+            this.progressBarCopy.Name = "progressBarCopy";
+            this.progressBarCopy.Size = new System.Drawing.Size(200, 23);
+            this.progressBarCopy.Style = System.Windows.Forms.ProgressBarStyle.Marquee;
+            this.progressBarCopy.TabIndex = 3;
+            this.progressBarCopy.Visible = false;
+
+            // 
+            // labelCopyStatus
+            // 
+            this.labelCopyStatus.AutoSize = true;
+            this.labelCopyStatus.Location = new System.Drawing.Point(218, 289);
+            this.labelCopyStatus.Name = "labelCopyStatus";
+            this.labelCopyStatus.Size = new System.Drawing.Size(122, 15);
+            this.labelCopyStatus.TabIndex = 4;
+            this.labelCopyStatus.Text = "Copying files...";
+            this.labelCopyStatus.Visible = false;
 
             // 
             // panelFlatDirectory
@@ -115,6 +169,8 @@
             this.panelDirectoryList.Name = "panelDirectoryList";
             this.panelDirectoryList.Size = new System.Drawing.Size(200, 200);
             this.panelDirectoryList.TabIndex = 1;
+            this.panelDirectoryList.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top)
+                                           | System.Windows.Forms.AnchorStyles.Left))));
 
             // 
             // listBoxDirectories
@@ -137,6 +193,9 @@
             this.dataGridViewFilters.Size = new System.Drawing.Size(406, 200);
             this.dataGridViewFilters.TabIndex = 0;
             this.dataGridViewFilters.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
+            this.dataGridViewFilters.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+                                             | System.Windows.Forms.AnchorStyles.Left)
+                                             | System.Windows.Forms.AnchorStyles.Right)));
 
             // 
             // buttonAddFilter
@@ -148,6 +207,7 @@
             this.buttonAddFilter.Text = "Add Filter";
             this.buttonAddFilter.UseVisualStyleBackColor = true;
             this.buttonAddFilter.Click += new System.EventHandler(this.buttonAddFilter_Click);
+            this.buttonAddFilter.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
 
             // 
             // buttonRemoveFilter
@@ -159,6 +219,7 @@
             this.buttonRemoveFilter.Text = "Remove Filter";
             this.buttonRemoveFilter.UseVisualStyleBackColor = true;
             this.buttonRemoveFilter.Click += new System.EventHandler(this.buttonRemoveFilter_Click);
+            this.buttonRemoveFilter.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
 
             // 
             // MainForm
@@ -169,6 +230,7 @@
             this.Controls.Add(this.tabControl);
             this.Name = "MainForm";
             this.Text = "Flat Directory Tray";
+            this.Resize += new System.EventHandler(this.MainForm_Resize);
 
             this.panelDirectoryList.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.dataGridViewFilters)).BeginInit();

@@ -101,23 +101,92 @@ namespace FlatDirectoryTray
                 listBoxDirectories.Items.Add(copiedDirectory);
             }
         }
+        // Handle resizing of the form and tab control
+        private void MainForm_Resize(object sender, EventArgs e)
+        {
+            AdjustTabControlSize();
+        }
+        // Handle drag and drop indicator
+        private void tabPageMain_DragEnter(object sender, DragEventArgs e)
+        {
+            if (e.Data.GetDataPresent(DataFormats.FileDrop))
+            {
+                e.Effect = DragDropEffects.Copy;
+                labelDropIndicator.Visible = true;
+            }
+            else
+            {
+                e.Effect = DragDropEffects.None;
+            }
+        }
 
+        private void tabPageMain_DragLeave(object sender, EventArgs e)
+        {
+            labelDropIndicator.Visible = false;
+        }
+        private void tabControl_Resize(object sender, EventArgs e)
+        {
+            AdjustTabControlSize();
+        }
+
+        private void AdjustTabControlSize()
+        {
+            // Make sure tab control fills the form
+            tabControl.Width = this.ClientSize.Width;
+            tabControl.Height = this.ClientSize.Height;
+        }
         private void panelFlatDirectory_DragDrop(object sender, DragEventArgs e)
         {
             if (e.Data.GetDataPresent(DataFormats.FileDrop))
             {
                 string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
+
+                // Hide drop indicator and show copy progress
+                labelDropIndicator.Visible = false;
+                progressBarCopy.Visible = true;
+                labelCopyStatus.Visible = true;
+
+                // Process each file
                 foreach (string file in files)
                 {
-                    // Use the FolderCopyContextMenu class to flatten the directory
-                    string copiedDirectory = FolderCopyContextMenu.CopyFilesWithPrefix(file, folderFilters);
-                    if (!string.IsNullOrEmpty(copiedDirectory))
+                    try
                     {
-                        flattenedDirectories.Add(copiedDirectory);
-                        listBoxDirectories.Items.Add(copiedDirectory);
+                        // Update status to show which file is being copied
+                        labelCopyStatus.Text = $"Copying: {Path.GetFileName(file)}...";
+                        Application.DoEvents(); // Allow UI to update
+
+                        // Use the FolderCopyContextMenu class to flatten the directory
+                        string copiedDirectory = FolderCopyContextMenu.CopyFilesWithPrefix(file, folderFilters);
+
+                        if (!string.IsNullOrEmpty(copiedDirectory))
+                        {
+                            flattenedDirectories.Add(copiedDirectory);
+                            listBoxDirectories.Items.Add(copiedDirectory);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show($"Error copying file {Path.GetFileName(file)}: {ex.Message}",
+                            "Copy Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     }
                 }
+
+                // Hide progress indicators and show completion status
+                progressBarCopy.Visible = false;
+                labelCopyStatus.Text = "Files copied successfully!";
+
+                // Hide the status message after a few seconds
+                Task.Delay(3000).ContinueWith(_ => {
+                    if (this.IsDisposed) return;
+                    this.Invoke((Action)(() => {
+                        labelCopyStatus.Visible = false;
+                    }));
+                });
             }
+
+            // Always hide the drop indicator when operation is complete
+            labelDropIndicator.Visible = false;
         }
+
     }
 }
