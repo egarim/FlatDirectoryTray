@@ -74,6 +74,7 @@
             this.listBoxDirectories.Name = "listBoxDirectories";
             this.listBoxDirectories.Size = new System.Drawing.Size(198, 198);
             this.listBoxDirectories.TabIndex = 0;
+            this.listBoxDirectories.DoubleClick += new System.EventHandler(this.listBoxDirectories_DoubleClick);
 
             // 
             // MainForm

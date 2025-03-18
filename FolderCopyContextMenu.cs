@@ -8,9 +8,9 @@ namespace FlatDirectoryTray
 {
     public class FolderCopyContextMenu 
     {
-     
 
-        public static void CopyFilesWithPrefix(string DirectoryPath)
+
+        public static string CopyFilesWithPrefix(string DirectoryPath)
         {
             try
             {
@@ -20,6 +20,7 @@ namespace FlatDirectoryTray
                 Directory.CreateDirectory(tempDir);
 
                 string[] files = Directory.GetFiles(sourceDir, "*.*", SearchOption.AllDirectories);
+                Dictionary<string, string> fileIndex = new Dictionary<string, string>();
 
                 foreach (string filePath in files)
                 {
@@ -36,16 +37,31 @@ namespace FlatDirectoryTray
                     string destPath = Path.Combine(tempDir, newFileName);
 
                     File.Copy(filePath, destPath);
+                    fileIndex[filePath] = destPath;
+                }
+
+                string indexPath = Path.Combine(tempDir, "DirectoryFileIndex.txt");
+                using (StreamWriter writer = new StreamWriter(indexPath))
+                {
+                    foreach (var entry in fileIndex)
+                    {
+                        writer.WriteLine($"{entry.Key} -> {entry.Value}");
+                    }
                 }
 
                 MessageBox.Show($"Files copied to: {tempDir}", "Success",
                     MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+                return tempDir;
             }
             catch (Exception ex)
             {
                 MessageBox.Show($"Error: {ex.Message}", "Error",
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return null;
             }
         }
+
+
     }
 }
