@@ -23,10 +23,60 @@ namespace FlatDirectoryTray
             dataGridViewFilters.Columns[0].Name = "Folder Name to Skip";
             dataGridViewFilters.Columns[0].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
 
-            // Add some example row
-            dataGridViewFilters.Rows.Add(".git");
-            folderFilters.Add(".git");
+            // Add common folders to skip in a C# solution
+            string[] commonFolders = new string[]
+            {
+        ".git",
+        ".vs",
+        "bin",
+        "obj",
+        "node_modules",
+        "packages",
+        ".github",
+        "TestResults",
+        ".nuget",
+        ".svn",
+        "Debug",
+        "Release",
+        "x64",
+        "x86",
+        "AnyCPU"
+            };
+
+            // Add file extensions to skip as folders with extension names
+            string[] binaryExtensions = new string[]
+            {
+        "dll",
+        "exe",
+        "pdb",
+        "bin",
+        "obj",
+        "cache",
+        "suo",
+        "bak",
+        "vspscc",
+        "vsp",
+        "vspx",
+        "vssscc",
+        "log",
+        "user",
+        "userprefs",
+        "ncb",
+        "nupkg"
+            };
+
+            // Add all folder filters
+            foreach (var folder in commonFolders)
+            {
+                dataGridViewFilters.Rows.Add(folder);
+                folderFilters.Add(folder);
+            }
+
+            // Note: Since your current implementation only filters by folder names, 
+            // we're focusing on folders. If you need file extension filtering,
+            // that would require additional code changes.
         }
+
 
         private void buttonAddFilter_Click(object sender, EventArgs e)
         {
