@@ -19,7 +19,6 @@
         private System.Windows.Forms.ProgressBar progressBarCopy;
         private System.Windows.Forms.Label labelCopyStatus;
 
-
         /// <summary>
         ///  Clean up any resources being used.
         /// </summary>
@@ -118,14 +117,14 @@
             this.labelDropIndicator.BackColor = System.Drawing.Color.LightBlue;
             this.labelDropIndicator.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.labelDropIndicator.Font = new System.Drawing.Font("Segoe UI", 14F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
-            this.labelDropIndicator.Location = new System.Drawing.Point(12, 230);
+            this.labelDropIndicator.Location = new System.Drawing.Point(12, 12);
             this.labelDropIndicator.Name = "labelDropIndicator";
             this.labelDropIndicator.Padding = new System.Windows.Forms.Padding(10);
             this.labelDropIndicator.Size = new System.Drawing.Size(250, 47);
             this.labelDropIndicator.TabIndex = 2;
             this.labelDropIndicator.Text = "Drop Files Here";
             this.labelDropIndicator.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
-            this.labelDropIndicator.Visible = false;
+            this.labelDropIndicator.Visible = true;
 
             // 
             // progressBarCopy
@@ -155,7 +154,7 @@
             this.panelFlatDirectory.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.panelFlatDirectory.Location = new System.Drawing.Point(12, 12);
             this.panelFlatDirectory.Name = "panelFlatDirectory";
-            this.panelFlatDirectory.Size = new System.Drawing.Size(200, 200);
+            this.panelFlatDirectory.Size = new System.Drawing.Size(300, 300);
             this.panelFlatDirectory.TabIndex = 0;
             this.panelFlatDirectory.DragDrop += new System.Windows.Forms.DragEventHandler(this.panelFlatDirectory_DragDrop);
             this.panelFlatDirectory.DragEnter += new System.Windows.Forms.DragEventHandler(this.panelFlatDirectory_DragEnter);
@@ -165,12 +164,13 @@
             // 
             this.panelDirectoryList.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.panelDirectoryList.Controls.Add(this.listBoxDirectories);
-            this.panelDirectoryList.Location = new System.Drawing.Point(218, 12);
+            this.panelDirectoryList.Location = new System.Drawing.Point(318, 12);
             this.panelDirectoryList.Name = "panelDirectoryList";
-            this.panelDirectoryList.Size = new System.Drawing.Size(200, 200);
+            this.panelDirectoryList.Size = new System.Drawing.Size(462, 448);
             this.panelDirectoryList.TabIndex = 1;
-            this.panelDirectoryList.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top)
-                                           | System.Windows.Forms.AnchorStyles.Left))));
+            this.panelDirectoryList.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+                                           | System.Windows.Forms.AnchorStyles.Left)
+                                           | System.Windows.Forms.AnchorStyles.Right)));
 
             // 
             // listBoxDirectories
@@ -180,7 +180,7 @@
             this.listBoxDirectories.ItemHeight = 15;
             this.listBoxDirectories.Location = new System.Drawing.Point(0, 0);
             this.listBoxDirectories.Name = "listBoxDirectories";
-            this.listBoxDirectories.Size = new System.Drawing.Size(198, 198);
+            this.listBoxDirectories.Size = new System.Drawing.Size(460, 446);
             this.listBoxDirectories.TabIndex = 0;
             this.listBoxDirectories.DoubleClick += new System.EventHandler(this.listBoxDirectories_DoubleClick);
 
@@ -237,6 +237,9 @@
             this.ResumeLayout(false);
         }
 
+
         #endregion
+
+
     }
 }
