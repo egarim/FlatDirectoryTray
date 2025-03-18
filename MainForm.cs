@@ -14,8 +14,85 @@ namespace FlatDirectoryTray
             folderFilters = new List<string>();
 
             SetupFilterGrid();
+            SetupDirectoryListContextMenu(); // Set up the context menu
+            LoadDirectories(); // Load saved directories
+
+            // Add form closing event to save directories when the application closes
+            this.FormClosing += MainForm_FormClosing;
         }
+
+
+        private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            SaveDirectories(); // Save directories when the form is closing
+        }
+
         private readonly string filtersFileName = "filters.txt";
+        // File name for storing directories
+        private readonly string directoriesFileName = "directories.txt";
+
+        // Save directories to file
+        private void SaveDirectories()
+        {
+            try
+            {
+                // Get the application's current directory
+                string filePath = Path.Combine(Application.StartupPath, directoriesFileName);
+
+                // Create a list to store valid directories
+                List<string> validDirectories = new List<string>();
+
+                // Check if directories still exist before saving them
+                foreach (string dir in flattenedDirectories)
+                {
+                    if (Directory.Exists(dir))
+                    {
+                        validDirectories.Add(dir);
+                    }
+                }
+
+                // Write all valid directories to the file
+                File.WriteAllLines(filePath, validDirectories);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error saving directories: {ex.Message}", "Save Error",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        // Load directories from file
+        private void LoadDirectories()
+        {
+            try
+            {
+                string filePath = Path.Combine(Application.StartupPath, directoriesFileName);
+
+                // If file exists, load it
+                if (File.Exists(filePath))
+                {
+                    // Clear existing directories
+                    flattenedDirectories.Clear();
+                    listBoxDirectories.Items.Clear();
+
+                    // Read all directories from the file and add them
+                    string[] savedDirectories = File.ReadAllLines(filePath);
+                    foreach (string directory in savedDirectories)
+                    {
+                        if (!string.IsNullOrWhiteSpace(directory) && Directory.Exists(directory))
+                        {
+                            flattenedDirectories.Add(directory);
+                            listBoxDirectories.Items.Add(directory);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error loading directories: {ex.Message}", "Load Error",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
 
         private void SaveFilters()
         {
@@ -260,6 +337,9 @@ namespace FlatDirectoryTray
                     }
                 }
 
+                // Save directories after adding new ones
+                SaveDirectories();
+
                 // Hide progress indicators and show completion status
                 progressBarCopy.Visible = false;
                 labelCopyStatus.Text = "Files copied successfully!";
@@ -276,6 +356,52 @@ namespace FlatDirectoryTray
             // Always hide the drop indicator when operation is complete
             labelDropIndicator.Visible = false;
         }
+        // Add this to the InitializeComponent method in MainForm.Designer.cs or create a separate method and call it in the constructor
+        private void SetupDirectoryListContextMenu()
+        {
+            // Create context menu for the listBoxDirectories
+            ContextMenuStrip directoryContextMenu = new ContextMenuStrip();
+
+            // Add "Open" menu item
+            ToolStripMenuItem openMenuItem = new ToolStripMenuItem("Open");
+            openMenuItem.Click += (sender, e) =>
+            {
+                if (listBoxDirectories.SelectedItem != null)
+                {
+                    string selectedPath = listBoxDirectories.SelectedItem.ToString();
+                    if (Directory.Exists(selectedPath))
+                    {
+                        Process.Start(new ProcessStartInfo
+                        {
+                            FileName = selectedPath,
+                            UseShellExecute = true,
+                            Verb = "open"
+                        });
+                    }
+                }
+            };
+
+            // Add "Remove" menu item
+            ToolStripMenuItem removeMenuItem = new ToolStripMenuItem("Remove");
+            removeMenuItem.Click += (sender, e) =>
+            {
+                if (listBoxDirectories.SelectedItem != null)
+                {
+                    string selectedPath = listBoxDirectories.SelectedItem.ToString();
+                    flattenedDirectories.Remove(selectedPath);
+                    listBoxDirectories.Items.Remove(selectedPath);
+                    SaveDirectories(); // Save after removing an item
+                }
+            };
+
+            // Add menu items to context menu
+            directoryContextMenu.Items.Add(openMenuItem);
+            directoryContextMenu.Items.Add(removeMenuItem);
+
+            // Assign context menu to listBoxDirectories
+            listBoxDirectories.ContextMenuStrip = directoryContextMenu;
+        }
+
 
     }
 }
