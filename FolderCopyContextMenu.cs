@@ -9,8 +9,44 @@ namespace FlatDirectoryTray
     public class FolderCopyContextMenu 
     {
 
+        /// <summary>
+        /// Gets all files from a directory while excluding files from folders that match any name in the filter list
+        /// </summary>
+        /// <param name="directoryPath">The source directory path</param>
+        /// <param name="folderFilters">List of folder names to exclude</param>
+        /// <returns>A list of file paths excluding those in filtered folders</returns>
+        private static IEnumerable<string> GetFilesExcludingFilteredFolders(string directoryPath, List<string> folderFilters)
+        {
+            // If no filters specified, return all files
+            if (folderFilters == null || folderFilters.Count == 0)
+            {
+                return Directory.GetFiles(directoryPath, "*.*", SearchOption.AllDirectories);
+            }
 
-        public static string CopyFilesWithPrefix(string DirectoryPath)
+            var result = new List<string>();
+
+            // Process the root directory first
+            result.AddRange(Directory.GetFiles(directoryPath, "*.*", SearchOption.TopDirectoryOnly));
+
+            // Process subdirectories recursively, skipping filtered ones
+            foreach (var subDir in Directory.GetDirectories(directoryPath))
+            {
+                var dirName = Path.GetFileName(subDir);
+
+                // Skip this directory if its name is in the filter list
+                if (folderFilters.Contains(dirName, StringComparer.OrdinalIgnoreCase))
+                {
+                    continue;
+                }
+
+                // Process this non-filtered directory
+                result.AddRange(GetFilesExcludingFilteredFolders(subDir, folderFilters));
+            }
+
+            return result;
+        }
+
+        public static string CopyFilesWithPrefix(string DirectoryPath, List<string> folderFilters = null)
         {
             try
             {
@@ -19,7 +55,8 @@ namespace FlatDirectoryTray
 
                 Directory.CreateDirectory(tempDir);
 
-                string[] files = Directory.GetFiles(sourceDir, "*.*", SearchOption.AllDirectories);
+                // Get all files from directory, except those in filtered folders
+                var files = GetFilesExcludingFilteredFolders(sourceDir, folderFilters);
                 Dictionary<string, string> fileIndex = new Dictionary<string, string>();
 
                 foreach (string filePath in files)
