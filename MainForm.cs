@@ -52,14 +52,16 @@ namespace FlatDirectoryTray
 
             // Add menu items
             ToolStripMenuItem openMenuItem = new ToolStripMenuItem("Open");
-            openMenuItem.Click += (sender, e) => {
+            openMenuItem.Click += (sender, e) =>
+            {
                 this.Show();
                 this.WindowState = FormWindowState.Normal;
                 this.Activate();
             };
 
             ToolStripMenuItem exitMenuItem = new ToolStripMenuItem("Exit");
-            exitMenuItem.Click += (sender, e) => {
+            exitMenuItem.Click += (sender, e) =>
+            {
                 // Set to false so the form actually closes instead of minimizing to tray
                 minimizeToTray = false;
                 Application.Exit();
@@ -74,7 +76,8 @@ namespace FlatDirectoryTray
             trayIcon.ContextMenuStrip = trayIconContextMenu;
 
             // Handle the mouse click event to toggle form visibility
-            trayIcon.MouseClick += (sender, e) => {
+            trayIcon.MouseClick += (sender, e) =>
+            {
                 if (e.Button == MouseButtons.Left)
                 {
                     if (this.Visible)
@@ -290,12 +293,34 @@ namespace FlatDirectoryTray
             "x86",
             "AnyCPU"
                 };
+                // Add common image file extensions
+                string[] imageExtensions = new string[]
+                {
+       ".jpg",
+       ".jpeg",
+       ".png",
+       ".gif",
+       ".bmp",
+       ".tiff",
+       ".ico",
+       ".svg",
+       ".webp",
+       ".heic",
+       ".heif"
+                };
+
 
                 // Add all folder filters
                 foreach (var folder in commonFolders)
                 {
                     dataGridViewFilters.Rows.Add(folder);
                     folderFilters.Add(folder);
+                }
+                // Add all image extensions
+                foreach (var extension in imageExtensions)
+                {
+                    dataGridViewFilters.Rows.Add(extension);
+                    folderFilters.Add(extension);
                 }
 
                 // Save the default filters
@@ -460,9 +485,11 @@ namespace FlatDirectoryTray
                 labelCopyStatus.Text = "Files copied successfully!";
 
                 // Hide the status message after a few seconds
-                Task.Delay(3000).ContinueWith(_ => {
+                Task.Delay(3000).ContinueWith(_ =>
+                {
                     if (this.IsDisposed) return;
-                    this.Invoke((Action)(() => {
+                    this.Invoke((Action)(() =>
+                    {
                         labelCopyStatus.Visible = false;
                     }));
                 });
