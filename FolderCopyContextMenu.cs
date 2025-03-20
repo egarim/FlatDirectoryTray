@@ -25,16 +25,28 @@ namespace FlatDirectoryTray
 
             var result = new List<string>();
 
-            // Process the root directory first
-            result.AddRange(Directory.GetFiles(directoryPath, "*.*", SearchOption.TopDirectoryOnly));
+            // Separate filters into folder filters and extension filters
+            var extensionFilters = folderFilters.Where(f => f.StartsWith(".")).ToList();
+            var dirNameFilters = folderFilters.Where(f => !f.StartsWith(".")).ToList();
+
+            // Process the root directory first - filter files by extension
+            var rootFiles = Directory.GetFiles(directoryPath, "*.*", SearchOption.TopDirectoryOnly);
+            foreach (var file in rootFiles)
+            {
+                var extension = Path.GetExtension(file);
+                if (!extensionFilters.Any(ext => ext.Equals(extension, StringComparison.OrdinalIgnoreCase)))
+                {
+                    result.Add(file);
+                }
+            }
 
             // Process subdirectories recursively, skipping filtered ones
             foreach (var subDir in Directory.GetDirectories(directoryPath))
             {
                 var dirName = Path.GetFileName(subDir);
 
-                // Skip this directory if its name is in the filter list
-                if (folderFilters.Contains(dirName, StringComparer.OrdinalIgnoreCase))
+                // Skip this directory if its name matches any directory filter (case-insensitive)
+                if (dirNameFilters.Any(filter => dirName.Equals(filter, StringComparison.OrdinalIgnoreCase)))
                 {
                     continue;
                 }
@@ -45,6 +57,38 @@ namespace FlatDirectoryTray
 
             return result;
         }
+
+
+        //private static IEnumerable<string> GetFilesExcludingFilteredFolders(string directoryPath, List<string> folderFilters)
+        //{
+        //    // If no filters specified, return all files
+        //    if (folderFilters == null || folderFilters.Count == 0)
+        //    {
+        //        return Directory.GetFiles(directoryPath, "*.*", SearchOption.AllDirectories);
+        //    }
+
+        //    var result = new List<string>();
+
+        //    // Process the root directory first
+        //    result.AddRange(Directory.GetFiles(directoryPath, "*.*", SearchOption.TopDirectoryOnly));
+
+        //    // Process subdirectories recursively, skipping filtered ones
+        //    foreach (var subDir in Directory.GetDirectories(directoryPath))
+        //    {
+        //        var dirName = Path.GetFileName(subDir);
+
+        //        // Skip this directory if its name is in the filter list
+        //        if (folderFilters.Contains(dirName, StringComparer.OrdinalIgnoreCase))
+        //        {
+        //            continue;
+        //        }
+
+        //        // Process this non-filtered directory
+        //        result.AddRange(GetFilesExcludingFilteredFolders(subDir, folderFilters));
+        //    }
+
+        //    return result;
+        //}
 
         public static string CopyFilesWithPrefix(string DirectoryPath, List<string> folderFilters = null)
         {
