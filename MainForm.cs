@@ -16,6 +16,9 @@ namespace FlatDirectoryTray
             flattenedDirectories = new List<string>();
             folderFilters = new List<string>();
 
+            // Initialize the directory search controls
+            InitializeDirectorySearchControls();
+
             SetupFilterGrid();
             SetupDirectoryListContextMenu(); // Set up the context menu
             SetupDirectoryListKeyboardShortcuts(); // Set up keyboard shortcuts
@@ -25,6 +28,65 @@ namespace FlatDirectoryTray
 
             // Add form closing event to save directories when the application closes
             this.FormClosing += MainForm_FormClosing;
+        }
+        // Declare the control variables at the class level
+        private TextBox textBoxDirectoryPath;
+        private CheckedListBox checkedListBoxDirectories;
+        private Button buttonReadDirectories;
+
+        // Add this method to your MainForm class and call it from the constructor
+        private void InitializeDirectorySearchControls()
+        {
+            // Create and configure TextBox for directory path
+            textBoxDirectoryPath = new TextBox
+            {
+                Location = new Point(10, 10),
+                Width = 400,
+                Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right
+            };
+            this.Controls.Add(textBoxDirectoryPath);
+
+            // Create and configure Button for reading directories
+            buttonReadDirectories = new Button
+            {
+                Text = "Read Directories",
+                Location = new Point(420, 10),
+                Width = 120,
+                Anchor = AnchorStyles.Top | AnchorStyles.Right
+            };
+            buttonReadDirectories.Click += ButtonReadDirectories_Click;
+            this.Controls.Add(buttonReadDirectories);
+
+            // Create and configure CheckedListBox for displaying directories
+            checkedListBoxDirectories = new CheckedListBox
+            {
+                Location = new Point(10, 40),
+                Width = 530,
+                Height = 200,
+                Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right | AnchorStyles.Bottom
+            };
+            this.Controls.Add(checkedListBoxDirectories);
+        }
+
+        // Add this event handler for the Read Directories button
+        private void ButtonReadDirectories_Click(object sender, EventArgs e)
+        {
+            string directoryPath = textBoxDirectoryPath.Text;
+
+            if (Directory.Exists(directoryPath))
+            {
+                checkedListBoxDirectories.Items.Clear();
+                string[] directories = Directory.GetDirectories(directoryPath);
+
+                foreach (string dir in directories)
+                {
+                    checkedListBoxDirectories.Items.Add(dir);
+                }
+            }
+            else
+            {
+                MessageBox.Show("The specified directory does not exist.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
         // Add this method and call it from the constructor
         private void ShowStartupNotification()

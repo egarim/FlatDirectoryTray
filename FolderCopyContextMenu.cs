@@ -90,6 +90,58 @@ namespace FlatDirectoryTray
         //    return result;
         //}
 
+        //public static string CopyFilesWithPrefix(string DirectoryPath, List<string> folderFilters = null)
+        //{
+        //    try
+        //    {
+        //        string sourceDir = DirectoryPath;
+        //        string tempDir = Path.Combine(Path.GetTempPath(), "FolderCopy_" + Guid.NewGuid().ToString());
+
+        //        Directory.CreateDirectory(tempDir);
+
+        //        // Get all files from directory, except those in filtered folders
+        //        var files = GetFilesExcludingFilteredFolders(sourceDir, folderFilters);
+        //        Dictionary<string, string> fileIndex = new Dictionary<string, string>();
+
+        //        foreach (string filePath in files)
+        //        {
+        //            string relativePath = Path.GetDirectoryName(filePath)
+        //                .Substring(sourceDir.Length)
+        //                .Trim(Path.DirectorySeparatorChar);
+
+        //            string fileName = Path.GetFileName(filePath);
+        //            string prefix = string.IsNullOrEmpty(relativePath)
+        //                ? ""
+        //                : relativePath.Replace(Path.DirectorySeparatorChar, '_') + "_";
+
+        //            string newFileName = prefix + fileName;
+        //            string destPath = Path.Combine(tempDir, newFileName);
+
+        //            File.Copy(filePath, destPath);
+        //            fileIndex[filePath] = destPath;
+        //        }
+
+        //        string indexPath = Path.Combine(tempDir, "DirectoryFileIndex.txt");
+        //        using (StreamWriter writer = new StreamWriter(indexPath))
+        //        {
+        //            foreach (var entry in fileIndex)
+        //            {
+        //                writer.WriteLine($"{entry.Key} -> {entry.Value}");
+        //            }
+        //        }
+
+        //        MessageBox.Show($"Files copied to: {tempDir}", "Success",
+        //            MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+        //        return tempDir;
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        MessageBox.Show($"Error: {ex.Message}", "Error",
+        //            MessageBoxButtons.OK, MessageBoxIcon.Error);
+        //        return null;
+        //    }
+        //}
         public static string CopyFilesWithPrefix(string DirectoryPath, List<string> folderFilters = null)
         {
             try
@@ -143,6 +195,21 @@ namespace FlatDirectoryTray
             }
         }
 
+        public static List<string> CopyFilesWithPrefix(List<string> directoryPaths, List<string> folderFilters = null)
+        {
+            List<string> copiedDirectories = new List<string>();
+
+            foreach (var directoryPath in directoryPaths)
+            {
+                string copiedDirectory = CopyFilesWithPrefix(directoryPath, folderFilters);
+                if (!string.IsNullOrEmpty(copiedDirectory))
+                {
+                    copiedDirectories.Add(copiedDirectory);
+                }
+            }
+
+            return copiedDirectories;
+        }
 
     }
 }
